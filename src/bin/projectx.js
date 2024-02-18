@@ -117,7 +117,7 @@ if (mode == "projectx"|| mode == "x") {
     console.log("nodeDir: " + process.env.NODE_PATH);
     console.log(process.env);
     if (command == "update") {
-        gitUpdate(path.basename(path.basename(__dirname)));
+        gitUpdate(path.dirname(path.dirname(__dirname)));
     }
 }
 else {
