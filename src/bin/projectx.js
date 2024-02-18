@@ -9,8 +9,14 @@ const os = require('os');
 const { projectData, handlerFi } = require("../base/ProjectData.js");
 
 const yargsResult = yargs
-    .usage('Usage: -c <command> [-d <directory>] [--json]')
-    .positional('c', {
+    .usage('Usage: <mode> -c <command> [-d <directory>] [--json]')
+    .positional('o', {
+        alias: 'mode',
+        describe: 'Command to execute',
+        type: 'string',
+        demandOption: false
+    })
+    .option('c', {
         alias: 'command',
         describe: 'Command to execute',
         type: 'string',
@@ -32,7 +38,6 @@ const yargsResult = yargs
         type: 'string',
         default: "default"
     })
-
     .option('j', {
         alias: 'json',
         describe: 'Return result as JSON',
@@ -63,9 +68,11 @@ const args = options._;
 const command = options.command;
 const returnAsJson = options.json;
 let directory = options.directory || process.cwd();
+let mode = options.mode;
+console.log("Mode: " + mode);
 
 var printOptions = false;
-if(printOptions){
+if (printOptions) {
     console.log(options);
 }
 
@@ -74,7 +81,7 @@ var resultFi = handlerFi(options, directory, os.platform());
 // console.log(resultFi);
 function printResult() {
     console.log(JSON.stringify(resultFi, null, 2));
-    
+
 }
 
 
@@ -89,93 +96,120 @@ function updateVersion(packageJson, folder, packageName = "package.json") {
     fs.writeFileSync(path.join(folder, packageName), JSON.stringify(packageJson, null, 2));
 }
 
-var projectClass = null;
+function gitUpdate(folder) {
+    const { execSync } = require('child_process');
 
-if (projectData.is.pio) {
-    printResult();
+    try {
+        let stdout = execSync("git pull", {
+            cwd: folder
+        });
+        console.log(`stdout: ${stdout.toString()}`);
+    } catch (error) {
+        console.error(`error: ${error.message}`);
+    }
 }
-else if (projectData.is.quasar) {
-    // console.log("Quasar Project");
-    var { quasarx } = require("../projects/quasar/quasarx.js");
 
-    quasarx.init(resultFi.project);
-    // console.log(quasarx.getAppPath());
-    // console.log(quasarx.getPackedPath());
-
-    if (command == "build") {
-
-        quasarx.build(directory, options.env);
-        isCopy = options.copy || true;
-        isSync = options.sync || true;
+if (mode == "projectx"|| mode == "x") {
+    console.log("ProjectX Mode");
+    console.log("Directory: " + directory);
+    console.log("ProcDir: " + process.cwd());
+    console.log("FileDir: " + __dirname);
+    console.log("nodeDir: " + process.env.NODE_PATH);
+    console.log(process.env);
+    if (command == "update") {
+        gitUpdate(path.basename(path.basename(__dirname)));
     }
-    if (command == "release") {
-        if (projectData.is.node) {
-            if(!projectData.packageJson.version) {
-                projectData.packageJson.version = "0.0.1";
-            }
-
-           updateVersion(projectData.packageJson, directory);
-        }
-        quasarx.build(directory, options.env);
-        isCopy = options.copy || true;
-        isSync = options.sync || true;
-    }
-    else if (command == "copy") {
-
-        // console.log(resultFi)
-        isCopy = true;
-    }
-    else if (command == "sync") {
-        isSync = true;
-    }
-    else if (command == "count") {
-        updateVersion(projectData.packageJson, directory);
-    }
-    else if (command == "version") {
-        console.log(projectData.packageJson.version);
-    }
-    else if (command == "init") {
-        console.log("Init Quasar Project");
-        // quasarx.init(resultFi.project);
-    }
-    else if (command == "fsync") {
-        updateVersion(projectData.packageJson, directory);
-        isSync = true;
-        isCopy = true;
-    }
-    else if (command == "pull"){
-        const { execSync } = require('child_process');
-
-        try {
-            let stdout = execSync("git pull", { cwd: directory });
-            console.log(`stdout: ${stdout.toString()}`);
-        } catch (error) {
-            console.error(`error: ${error.message}`);
-        }
-    }
-    //
-
-    projectClass = quasarx;
-    printResult();
 }
 else {
-    resultFi.error = 1;
-    resultFi.message = "unknownProject"
-    //
-    printResult();
+
+    var projectClass = null;
+
+    if (projectData.is.pio) {
+        printResult();
+    }
+    else if (projectData.is.quasar) {
+        // console.log("Quasar Project");
+        var { quasarx } = require("../projects/quasar/quasarx.js");
+
+        quasarx.init(resultFi.project);
+        // console.log(quasarx.getAppPath());
+        // console.log(quasarx.getPackedPath());
+
+        if (command == "build") {
+
+            quasarx.build(directory, options.env);
+            isCopy = options.copy || true;
+            isSync = options.sync || true;
+        }
+        if (command == "release") {
+            if (projectData.is.node) {
+                if (!projectData.packageJson.version) {
+                    projectData.packageJson.version = "0.0.1";
+                }
+
+                updateVersion(projectData.packageJson, directory);
+            }
+            quasarx.build(directory, options.env);
+            isCopy = options.copy || true;
+            isSync = options.sync || true;
+        }
+        else if (command == "copy") {
+
+            // console.log(resultFi)
+            isCopy = true;
+        }
+        else if (command == "sync") {
+            isSync = true;
+        }
+        else if (command == "count") {
+            updateVersion(projectData.packageJson, directory);
+        }
+        else if (command == "version") {
+            console.log(projectData.packageJson.version);
+        }
+        else if (command == "init") {
+            console.log("Init Quasar Project");
+            // quasarx.init(resultFi.project);
+        }
+        else if (command == "fsync") {
+            updateVersion(projectData.packageJson, directory);
+            isSync = true;
+            isCopy = true;
+        }
+        else if (command == "pull") {
+            const { execSync } = require('child_process');
+
+            try {
+                let stdout = execSync("git pull", { cwd: directory });
+                console.log(`stdout: ${stdout.toString()}`);
+            } catch (error) {
+                console.error(`error: ${error.message}`);
+            }
+        }
+        //
+
+        projectClass = quasarx;
+        printResult();
+    }
+    else {
+        resultFi.error = 1;
+        resultFi.message = "unknownProject"
+        //
+        printResult();
+    }
+
+    controllerx.projectx = projectClass;
+
+    if (isCopy) {
+        Handlerx.copyToApps(resultFi);
+    }
+
+
+    resultFi.projectx = projectClass;
+
+    if (isSync && projectClass != null) {
+        Handlerx.copyToServer(projectClass, resultFi, ["win-unpacked", "linux-unpacked", "mac-unpacked"]);
+    }
+
 }
-
-controllerx.projectx = projectClass;
-
-if (isCopy) {
-    Handlerx.copyToApps(resultFi);
-}
-
-
-resultFi.projectx = projectClass;
-
-if (isSync && projectClass != null) {
-    Handlerx.copyToServer(projectClass, resultFi, ["win-unpacked", "linux-unpacked", "mac-unpacked"]);
-}
-
 // console.log(resultFi);
