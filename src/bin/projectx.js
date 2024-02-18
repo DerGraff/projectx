@@ -83,6 +83,7 @@ function printResult() {
     console.log(JSON.stringify(resultFi, null, 2));
 
 }
+var target = options.target || resultFi.project.target;
 
 
 var isCopy = false;
@@ -137,7 +138,7 @@ else {
 
         if (command == "build") {
 
-            quasarx.build(directory, options.env);
+            quasarx.build(directory, options.env, target);
             isCopy = options.copy || true;
             isSync = options.sync || true;
         }

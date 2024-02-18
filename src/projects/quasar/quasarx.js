@@ -51,8 +51,8 @@ class Quasarx extends BaseProjectx {
     // constructor(resultFi) {
     //     this.projectData = resultFi;
     // }
-    build(directory, env, target = "xxxwin32", arch = "xxxx64") {
-        const command = 'quasar build -m electron -T win32 -p always';
+    build(directory, env, target = "win32", arch = "xxxx64") {
+        const command = 'quasar build -m electron -T '+target+' -p always';
         var output = executeCommandSync(command, directory);
         console.log(output);
     }
