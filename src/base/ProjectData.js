@@ -31,7 +31,7 @@ class ProjectData {
         var env = { "env": { productName: this.productName, target: this.target, version: this.version, description: this.description } }
         var filenNames = { "filenames": this.fileNames }
         var is = { "is": this.is }
-        if(!this.project.productName && this.productName){
+        if (!this.project.productName && this.productName) {
             this.project.productName = this.productName;
         }
         var project = { "project": this.project }
@@ -45,14 +45,14 @@ class ProjectData {
         this.resultFi = this.getProjectResult();
     }
 
-    setProjectData(projectData) {        
+    setProjectData(projectData) {
         if (projectData.target)
             this.setTarget(projectData.target);
 
         if (projectData.type)
             this.type = projectData.type;
-        
-        this.project = { ...this.project, ...projectData }        
+
+        this.project = { ...this.project, ...projectData }
     }
 
     setTarget(target) {

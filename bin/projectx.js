@@ -72,9 +72,9 @@ if(printOptions){
 
 
 var resultFi = handlerFi(options, directory, os.platform());
-
+// console.log(resultFi);
 function printResult() {
-    // console.log(JSON.stringify(resultFi));
+    console.log(JSON.stringify(resultFi));
     
 }
 
