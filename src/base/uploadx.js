@@ -201,7 +201,7 @@ function example2(ftpConfigData, sourceDirectory, targetDirectory, onFinish) {
   const { cred, ftpBaseDir } = ftpConfigData;
 
   const sftp = new Client();
-  console.log( "Copy to -> /var/www/html/" + targetDirectory)
+  console.log( "Copy to -> /var/www/html/" + targetDirectory + " from " + sourceDirectory)
   sftp.connect({
     host: cred.host,
     username: cred.user,

@@ -209,7 +209,7 @@ else {
     resultFi.projectx = projectClass;
 
     if (isSync && projectClass != null) {
-        Handlerx.copyToServer(projectClass, resultFi, ["win-unpacked", "linux-unpacked", "mac-unpacked"]);
+        Handlerx.copyToServer(projectClass, resultFi, ["win-unpacked", "linux-unpacked", "mac-unpacked", "linux-arm64-unpacked"]);
     }
 
 }
