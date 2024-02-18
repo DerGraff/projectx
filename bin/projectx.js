@@ -162,6 +162,7 @@ if (isCopy) {
     Handlerx.copyToApps(resultFi);
 }
 
+
 resultFi.projectx = projectClass;
 
 if (isSync && projectClass != null) {
