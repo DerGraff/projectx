@@ -271,7 +271,7 @@ function copyToAppsDirectroy(projectInfoData, exclude = []) {
   var targetName = projectInfoData.project.target;
   var productName = projectInfoData.project.name;
   // console.log("DirName: " + dirName + " TargetName: " + targetName + " ProductName: " + productName)
-  const sourcePath = path.join(dirName, 'dist', 'electron', "packaged");
+  const sourcePath = path.join(dirName, 'dist', 'electron', "Packaged");
 
   if (targetName == "" || productName == "") {
     console.log("copyToAppsDirectroy: No Target or Product Name");
