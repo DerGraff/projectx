@@ -38,6 +38,11 @@ const yargsResult = yargs
         type: 'string',
         default: "default"
     })
+    .option('A', {
+        alias: 'arch',
+        describe: 'Architecture',
+        type: 'string'
+    })
     .option('j', {
         alias: 'json',
         describe: 'Return result as JSON',
@@ -84,6 +89,7 @@ function printResult() {
 
 }
 var target = options.target || resultFi.project.target;
+var arch = options.arch || resultFi.project.arch;
 
 
 var isCopy = false;
@@ -138,7 +144,7 @@ else {
 
         if (command == "build") {
 
-            quasarx.build(directory, options.env, target);
+            quasarx.build(directory, options.env, target, arch);
             isCopy = options.copy || true;
             isSync = options.sync || true;
         }
@@ -150,7 +156,7 @@ else {
 
                 updateVersion(projectData.packageJson, directory);
             }
-            quasarx.build(directory, options.env);
+            quasarx.build(directory, options.env, target, arch);
             isCopy = options.copy || true;
             isSync = options.sync || true;
         }

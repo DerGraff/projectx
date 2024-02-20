@@ -7,6 +7,7 @@ class BaseProjectx {
                 target: "",
                 version: "0.0.0",
                 description: "projectx",
+                arch: "",
             }
         }
         this.projectData = projeckData;

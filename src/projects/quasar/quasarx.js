@@ -81,7 +81,7 @@ class Quasarx extends BaseProjectx {
     }
 
     getShortAppPath() {
-        return "apps/" + this.projectData.name + "/" + this.projectData.target;
+        return "apps/" + this.projectData.name + "/" + this.projectData.target + "/" + this.projectData.arch;
         return "build/quasar/apps/" + this.projectData.target + "/" + this.projectData.name;
     }
 }

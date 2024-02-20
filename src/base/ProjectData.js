@@ -73,14 +73,22 @@ class ProjectData {
 
 var projectData = new ProjectData();
 
-function handlerFi(options = {}, directory, platform = os.platform()) {
+function handlerFi(options = {}, directory, platform = os.platform(), arch = null) {
     var resultFi = {};
     console.log("------ HandlerFi Start ------");
     var target = options.target || platform;
     const command = options.command;
+    if(!arch){
+        arch = os.arch();
+        if(options.arch){
+            arch = options.arch;
+        }
+    }
+
     const returnAsJson = options.json;
     // resultFi = { project: { type: "", target: target, productName: packageJson.name || packageJson.productName, folder: directory, dirName: directory, os: platform } };
-    projectData.setProjectData({ target: target, folder: directory, dirName: directory, os: platform });
+    projectData.setProjectData({ target: target, folder: directory, dirName: directory, os: platform, arch: arch });
+    
 
 
     function checkFilesExist(directoryPath, filenames) {
