@@ -51,10 +51,10 @@ class Quasarx extends BaseProjectx {
     // constructor(resultFi) {
     //     this.projectData = resultFi;
     // }
-    build(directory, env, target = "win32", arch = "x64") {
+    build(directory, env, target = "win32", arch = "") {
         var command = 'quasar build -m electron -T '+target+' -p always';
         if(arch){
-            if(target == "linux" && (arch == "x64" || arch == "")){
+            if(target == "linux" && (arch == "x64")){
                 arch = "armv7l";
             }
             else if(target == "win32" && arch == ""){
