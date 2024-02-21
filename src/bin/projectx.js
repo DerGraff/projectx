@@ -153,7 +153,6 @@ else {
                 if (!projectData.packageJson.version) {
                     projectData.packageJson.version = "0.0.1";
                 }
-
                 updateVersion(projectData.packageJson, directory);
             }
             quasarx.build(directory, options.env, target, arch);
