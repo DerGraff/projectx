@@ -46,22 +46,28 @@ class Piox {
             let currentKey = '';
 
             for (let line of lines) {
-                if(line.startsWith(';')) continue;
-                
+                if (line.startsWith(';')) continue;
+                var isTab = line.startsWith('\t') || line.startsWith('    ');
                 line = line.trim();
+                if (line.startsWith(';')) continue;
                 if (line.startsWith('[')) {
                     currentSection = line.slice(1, -1);
                     result[currentSection] = {};
-                } else if (line.includes('=')) {
+                } else if (line.includes('=') && !isTab) {
+                    if (currentKey == "build_flags") {
+                        console.log("build_flags", line);
+                    }
+
                     const [key, value] = line.split('=').map(s => s.trim());
                     currentKey = key;
+                    // console.log(currentSection, currentKey, value);
                     if (value) {
                         result[currentSection][currentKey] = [value];
                     } else {
                         result[currentSection][currentKey] = [];
                     }
                 } else if (line) {
-                    console.log(currentSection, currentKey, line);
+                    // console.log(currentSection, currentKey, line);
                     result[currentSection][currentKey].push(line);
                 }
             }
