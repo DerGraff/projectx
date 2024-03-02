@@ -2,9 +2,9 @@
 git config --global credential.helper store
 sudo apt-get -y install cec-utils
 
-
-sudo mkdir /progs && sudo chown -R ws:ws /progs/ && mkdir /progs/nodejs && mkdir /progs/nodejs/nodelocal && mkdir /progs/quasar
-
+# currentuser=$(whoami)
+current_user="pi"
+sudo mkdir /progs && sudo chown -R $currentuser:$currentuser /progs/ && mkdir /progs/nodejs && mkdir /progs/nodejs/nodelocal && mkdir /progs/quasar
 
 
 git -C /progs/nodejs/nodelocal clone https://ws-hub.de/node/libs/clientservice.git
