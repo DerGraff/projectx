@@ -6,6 +6,7 @@ const { on } = require('events');
 var platform = os.platform();
 const Jsftp = require('jsftp');
 const Client = require('ssh2-sftp-client');
+const { constants } = require('buffer');
 
 require('events').EventEmitter.prototype._maxListeners = 500;
 require('events').defaultMaxListeners = 500;
@@ -70,7 +71,7 @@ function syncVideoDirectoryToFtp(src, dest) {
 
   syncVideos(ftpConfigData, src, dest, () => {
     console.log("FTP Upload finished");
-    
+
   }
   );
 }
@@ -201,7 +202,7 @@ function example2(ftpConfigData, sourceDirectory, targetDirectory, onFinish) {
   const { cred, ftpBaseDir } = ftpConfigData;
 
   const sftp = new Client();
-  console.log( "Copy to -> /var/www/html/" + targetDirectory + " from " + sourceDirectory)
+  console.log("Copy to -> /var/www/html/" + targetDirectory + " from " + sourceDirectory)
   sftp.connect({
     host: cred.host,
     username: cred.user,
@@ -210,7 +211,7 @@ function example2(ftpConfigData, sourceDirectory, targetDirectory, onFinish) {
     .then(() => uploadDirectory(sftp, sourceDirectory, "/var/www/html/" + targetDirectory, onFinishCallback, ["latest.yml"]))
     .then(() => {
       sftp.end();
-      
+
       onFinish();
     })
     .catch(err => {
@@ -289,12 +290,135 @@ function copyToAppsDirectroy(projectInfoData, exclude = []) {
 
 
 
-  copyToDirectroy(sourcePath, targetPath,false, exclude);
+  copyToDirectroy(sourcePath, targetPath, false, exclude);
 
   if (projectInfoData.is.quasar) {
     targetPath = targetPath + "/latest"
     copyToDirectroy(sourcePath, targetPath, true, [...exclude, "win-unpacked"]);
   }
+}
+
+function compareVersions(version1, version2) {
+  const v1 = version1.split('.').map(Number);
+  const v2 = version2.split('.').map(Number);
+  
+  for (let i = 0; i < v1.length; i++) {
+    if (v1[i] > v2[i]) {
+      return 1;
+    } else if (v1[i] < v2[i]) {
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+function copyToAppsDirectroyPio(projectInfoData, exclude = []) {
+  var dirName = projectInfoData.project.dirName;
+  var targetName = projectInfoData.project.target;
+  var productName = projectInfoData.project.productName;
+  console.log("DirName: " + dirName + " TargetName: " + targetName + " ProductName: " + productName)
+  var buildPath = path.join(dirName, '.pio', 'build');
+
+  for (var dir of fs.readdirSync(buildPath)) {
+    //if is dir
+    if (fs.lstatSync(path.join(buildPath, dir)).isDirectory()) {
+      console.log("Dir: " + dir)
+      var targetName2 = dir;
+      var latestVersion = "0.0.0";
+      var targetPath = "C:\\build\\pio\\apps\\" + productName + "\\" + targetName2;
+
+      const latestJsonPath = path.join(targetPath, 'latest.json');
+
+      if (!fs.existsSync(latestJsonPath)) {
+        const initialJson = {
+          builds: {
+            latest: ''
+          },
+          latest: '',
+        };
+        fs.writeFileSync(latestJsonPath, JSON.stringify(initialJson, null, 2));
+      }
+
+      const latestJson = JSON.parse(fs.readFileSync(latestJsonPath, 'utf8'));
+
+      if(!latestJson.builds) {
+        latestJson.builds = {};
+      }
+
+      if(!latestJson.latest) {
+        latestJson.latest = '0.0.0';
+      }
+
+      console.log("Latest Version: " + latestJson.latest, latestJson);
+
+
+      fs.readdirSync(path.join(buildPath, dir)).forEach((file) => {
+        if (file.includes("firmware")) {
+          var extType = path.extname(file);
+          //example fileName firmware_002.00078.00106.bin
+          var version = file.split("_")[1].split(".")[0];
+          var fullVersion = file.split("_")[1].split(".")[0] + "." + file.split("_")[1].split(".")[1] + "." + file.split("_")[1].split(".")[2].split(".")[0]; 7
+          if(compareVersions(fullVersion, latestVersion) > 0) {
+            latestVersion = fullVersion;
+          }
+          
+
+          if (!latestJson.builds.hasOwnProperty(file)) {
+            latestJson.builds[file] = version;
+          }
+          var sourcePath = path.join(buildPath, dir, file);
+          if (extType == ".bin") {
+            console.log("Source: " + sourcePath + " Target: " + targetPath + " Version: " + version + " FullVersion: " + fullVersion + " Ext: " + extType);
+            if (!fs.existsSync(targetPath)) {
+              console.log("Create Directory: " + targetPath);
+              fs.mkdirSync(targetPath, { recursive: true });
+            }
+
+            fs.copyFileSync(sourcePath, targetPath + "\\" + file);
+          }
+          // copyToDirectroy(sourcePath, targetPath, false, exclude);
+        }
+        // console.log("File: " + file);
+
+      });
+      console.log("Latest Version: " + latestVersion);
+      if (latestVersion != "0.0.0") {
+        var sourcePath = path.join(buildPath, dir, "firmware_" + latestVersion + ".bin");
+        var targetPath = "C:\\build\\pio\\apps\\" + productName + "\\" + targetName2 ;
+        console.log("Source: " + sourcePath + " Target: " + targetPath + " Version: " + latestVersion);
+        if (!fs.existsSync(targetPath)) {
+          fs.mkdirSync(targetPath, { recursive: true });
+        }
+        fs.copyFileSync(sourcePath, targetPath + "\\latest.bin");
+      }
+
+
+
+      const binFiles = fs.readdirSync(targetPath).filter(file => file.endsWith('.bin'));
+
+      if(compareVersions(latestJson.latest, latestVersion) < 0) {
+        latestJson.latest = latestVersion;
+      }
+
+      fs.writeFileSync(latestJsonPath, JSON.stringify(latestJson, null, 2));
+    }
+  }
+
+
+  if (targetName == "" || productName == "") {
+    console.log("copyToAppsDirectroy: No Target or Product Name");
+    return;
+  }
+
+  return;
+  copyToDirectroy(sourcePath, targetPath, false, exclude);
+
+  if (projectInfoData.is.quasar) {
+    targetPath = targetPath + "/latest"
+    copyToDirectroy(sourcePath, targetPath, true, [...exclude, "win-unpacked"]);
+  }
+
 }
 
 function copyToDirectroy(sourcePath, targetPath, clear = false, exclude = []) {
@@ -323,4 +447,4 @@ function copyToDirectroy(sourcePath, targetPath, clear = false, exclude = []) {
   console.log("Copy completed successfully.");
 }
 
-module.exports = { uploadDirectoryToFtp, copyToAppsDirectroy };
+module.exports = { uploadDirectoryToFtp, copyToAppsDirectroy, copyToAppsDirectroyPio };

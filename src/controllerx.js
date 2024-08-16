@@ -1,6 +1,6 @@
 const { quasarx } = require("./projects/quasar/quasarx");
 const { piox } = require("./projects/pio/piox");
-var { uploadx, copyToAppsDirectroy, uploadDirectoryToFtp } = require("./base/uploadx.js");
+var { uploadx, copyToAppsDirectroy, uploadDirectoryToFtp, copyToAppsDirectroyPio } = require("./base/uploadx.js");
 
 
 class Handlerx {
@@ -8,20 +8,26 @@ class Handlerx {
         console.log("------------")
         console.log("------------")
         console.log("Start Copy")
-        copyToAppsDirectroy(projectData, exclude);
+        if (projectData.is.quasar === true) {
+
+            copyToAppsDirectroy(projectData, exclude);
+        }
+        else {
+            copyToAppsDirectroyPio(projectData, exclude);
+        }
     }
 
     static copyToServer(projectClass, projectData, exclude = []) {
         console.log("------------")
         console.log("------------")
         console.log("Start Sync")
-        if (projectData.is.quasar){
-            uploadDirectoryToFtp(projectClass.getAppPath()  + "/latest", projectClass.getShortAppPath(), exclude);
+        if (projectData.is.quasar) {
+            uploadDirectoryToFtp(projectClass.getAppPath() + "/latest", projectClass.getShortAppPath(), exclude);
         }
         else {
             uploadDirectoryToFtp(projectClass.getAppPath(), projectClass.getShortAppPath(), exclude);
         }
-        
+
     }
 }
 
@@ -37,7 +43,7 @@ class Controllerx {
 
     }
 
-    uploadFtp(){
+    uploadFtp() {
 
     }
 

@@ -116,7 +116,7 @@ function gitUpdate(folder) {
     }
 }
 
-if (mode == "projectx"|| mode == "x") {
+if (mode == "projectx" || mode == "x") {
     console.log("ProjectX Mode");
     console.log("Directory: " + directory);
     console.log("ProcDir: " + process.cwd());
@@ -132,7 +132,19 @@ else {
     var projectClass = null;
 
     if (projectData.is.pio) {
+        if (command == "build") {
+            piox.build(directory, options.env, target, arch);
+        }
+        else if (command == "copy") {
+            isCopy = true;
+        }
+        else {
+            resultFi.error = 1;
+            resultFi.message = "unknownCommand"
+
+        }
         printResult();
+
     }
     else if (projectData.is.quasar) {
         // console.log("Quasar Project");
